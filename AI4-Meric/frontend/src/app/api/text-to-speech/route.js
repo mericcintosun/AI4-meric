@@ -10,6 +10,8 @@ export async function POST(req) {
     }
 
     const apiKey = process.env.ELEVENLABS_API_KEY;
+    console.log("ElevenLabs API Key:", apiKey);
+
     const voiceId = "EXAVITQu4vr4xnSDxMaL"; // Doğru voiceId'yi kullandığınızdan emin olun
 
     const response = await fetch(
