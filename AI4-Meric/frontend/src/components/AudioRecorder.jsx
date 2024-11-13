@@ -1,41 +1,49 @@
 "use client";
 
-import { useState } from "react";
-import { ReactMic } from "react-mic";
+import { useState, useRef } from "react";
 
 export default function AudioRecorder({ onRecordingComplete }) {
   const [isRecording, setIsRecording] = useState(false);
+  const [audioURL, setAudioURL] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
-  const onStop = (recordedData) => {
-    console.log("Recorded Blob:", recordedData.blob);
-    console.log("Audio Blob Type:", recordedData.blob.type);
-    console.log("Audio Blob Size:", recordedData.blob.size);
-    onRecordingComplete(recordedData.blob);
-  };
+  const handleStartRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorderRef.current = new MediaRecorder(stream, {
+      mimeType: "audio/webm",
+    });
 
-  const handleStartRecording = () => {
+    mediaRecorderRef.current.ondataavailable = (event) => {
+      audioChunksRef.current.push(event.data);
+    };
+
+    mediaRecorderRef.current.onstop = () => {
+      const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+      audioChunksRef.current = [];
+      setAudioURL(URL.createObjectURL(blob));
+      onRecordingComplete(blob);
+    };
+
+    mediaRecorderRef.current.start();
     setIsRecording(true);
   };
 
   const handleStopRecording = () => {
+    mediaRecorderRef.current.stop();
     setIsRecording(false);
-  };
-
-  const handleOnStop = (recordedData) => {
-    onRecordingComplete(recordedData.blob);
   };
 
   return (
     <div className="flex flex-col items-center">
       <div className="mb-4 w-full max-w-md">
-        <ReactMic
-          record={isRecording}
-          className="w-full h-32 rounded-lg shadow-md"
-          mimeType="audio/wav"
-          onStop={handleOnStop}
-          strokeColor="#4F46E5"
-          backgroundColor="#E0E7FF"
-        />
+        {audioURL && (
+          <audio
+            src={audioURL}
+            controls
+            className="w-full h-10 rounded-lg shadow-md bg-gray-200"
+          />
+        )}
       </div>
       <button
         onMouseDown={handleStartRecording}
