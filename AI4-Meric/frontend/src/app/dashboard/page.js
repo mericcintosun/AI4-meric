@@ -1,12 +1,22 @@
 "use client";
-import AudioRecorder from "@/components/AudioRecorder";
-import ConversationHistory from "@/components/ConversationHistory";
-import React, { useState } from "react";
 
-const Page = () => {
+import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+
+// Bileşenlerin sadece istemci tarafında çalışacak şekilde düzenlenmesi
+const AudioRecorder = dynamic(() => import("@/components/AudioRecorder"), {
+  ssr: false,
+});
+const ConversationHistory = dynamic(
+  () => import("@/components/ConversationHistory"),
+  { ssr: false }
+);
+
+const DashboardPage = () => {
   const [feedback, setFeedback] = useState("");
   const [transcribedText, setTranscribedText] = useState("");
   const [refresh, setRefresh] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(null); // Ses URL'sini burada saklıyoruz
 
   const handleRecordingComplete = async (audioBlob) => {
     const formData = new FormData();
@@ -24,6 +34,7 @@ const Page = () => {
         setFeedback(data.text);
         setTranscribedText(data.transcribedText);
         setRefresh((prev) => !prev);
+
         try {
           const ttsResponse = await fetch("/api/text-to-speech", {
             method: "POST",
@@ -36,8 +47,7 @@ const Page = () => {
           if (ttsResponse.ok) {
             const audioBlob = await ttsResponse.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
-            audio.play();
+            setAudioUrl(audioUrl); // Ses URL'sini duruma kaydediyoruz
           } else {
             console.error("TTS API Hatası");
           }
@@ -51,6 +61,21 @@ const Page = () => {
       setFeedback("Sunucuya ses gönderilirken bir hata oluştu.");
     }
   };
+
+  // Sesin yalnızca istemci tarafında çalınması için bir useEffect kancası kullanıyoruz
+  useEffect(() => {
+    if (audioUrl) {
+      const playAudio = async () => {
+        try {
+          const audio = new Audio(audioUrl);
+          await audio.play();
+        } catch (error) {
+          console.error("Ses oynatılamadı:", error);
+        }
+      };
+      playAudio();
+    }
+  }, [audioUrl]); // audioUrl değiştiğinde ses oynatma tetiklenir
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -85,4 +110,5 @@ const Page = () => {
   );
 };
 
-export default Page;
+// Bileşeni dinamik olarak yükleyip yalnızca istemci tarafında render edilmesini sağlıyoruz
+export default dynamic(() => Promise.resolve(DashboardPage), { ssr: false });
