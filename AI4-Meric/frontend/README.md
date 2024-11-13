@@ -34,3 +34,21 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+# .env.example
+
+# MongoDB veritabanı bağlantı URL'si
+DATABASE_URL="mongodb+srv://<username>:<password>@cluster0.wm81q.mongodb.net/<database>?retryWrites=true&w=majority&appName=Cluster0"
+
+# OpenAI API anahtarı
+OPENAI_API_KEY="your_openai_api_key_here"
+
+# ElevenLabs API anahtarı
+ELEVENLABS_API_KEY="your_elevenlabs_api_key_here"
+
+# NextAuth güvenlik anahtarı
+NEXTAUTH_SECRET="your_random_generated_secret_here"
+
+# NextAuth URL (geliştirme ortamında http://localhost:3000 kullanın)
+NEXTAUTH_URL="http://localhost:3000"
+

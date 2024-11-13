@@ -1,10 +1,5 @@
 {
-  "extends": "next/core-web-vitals",
-  "parser": "@babel/eslint-parser",
-  "parserOptions": {
-    "requireConfigFile": false,
-    "babelOptions": {
-      "bun": true
-    }
-  }
+  "extends": ["airbnb", "prettier", "prettier/react"],
+  "plugins": ["prettier"],
+  "parser": "react-scripts/node_modules/babel-eslint"
 }
