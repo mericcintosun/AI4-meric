@@ -25,9 +25,17 @@ export async function POST(req) {
         body: JSON.stringify({
           text,
           voice_settings: {
-            stability: 0.7,
-            similarity_boost: 0.7,
+            stability: 0.9,
+            similarity_boost: 0.5,
+            speed: 0.4,
+            pitch: 0.9,
+            volume: 0.8,
           },
+          messages: [
+            {
+              content: `. speak more slowly and use slower sentences.`,
+            },
+          ],
         }),
       }
     );
